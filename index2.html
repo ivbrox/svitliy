@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>svetlickicki - Каталог товаров</title>
+    <title>svetlickicki - Каталог всех товаров</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome для иконок -->
@@ -14,8 +14,8 @@
                 extend: {
                     colors: {
                         brandDark: '#121212',
-                        glassBg: 'rgba(255, 255, 255, 0.07)',
-                        glassBorder: 'rgba(255, 255, 255, 0.15)',
+                        glassBg: 'rgba(255, 255, 255, 0.1)',
+                        glassBorder: 'rgba(255, 255, 255, 0.2)',
                     }
                 }
             }
@@ -40,36 +40,43 @@
             transform: translateY(-2px);
             transition: all 0.3s ease;
         }
-        .glass-bar {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
         }
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-pink-500 selection:text-white">
 
-    <!-- 1. Верхняя черная шапка (абсолютно идентична первой странице) -->
+    <!-- 1. Верхняя черная шапка (остается такой же) -->
     <header class="bg-black text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50 shadow-md">
-        <!-- Левый верхний угол: Кнопка возврата или Регистрация -->
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-4">
             <a href="index.html" class="text-sm font-semibold hover:text-gray-300 transition flex items-center gap-1 bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-700">
-                <i class="fa-solid fa-house text-xs"></i> На главную
+                <i class="fa-solid fa-arrow-left text-xs"></i> На главную
             </a>
         </div>
 
-        <!-- Центр: Поиск -->
         <div class="flex-1 max-w-md mx-4">
             <div class="relative">
-                <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Найти продукт в каталоге..." class="w-full bg-white text-gray-900 px-4 py-1.5 pl-10 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                <input type="text" id="searchInput" placeholder="Найти продукт в каталоге..." oninput="filterCatalog()" class="w-full bg-white text-gray-900 px-4 py-1.5 pl-10 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-sm"></i>
             </div>
         </div>
 
-        <!-- Правый верхний угол -->
         <div class="flex items-center space-x-3 sm:space-x-4 text-xs sm:text-sm">
+            <!-- Кнопка Кошик -->
+            <button onclick="toggleCartModal()" class="glass-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 text-white transition">
+                <i class="fa-solid fa-cart-shopping text-emerald-400"></i>
+                <span>Кошик</span>
+                <span id="cartBadge" class="bg-red-500 text-white rounded-full px-1.5 py-0.2 text-[10px] font-bold">0</span>
+            </button>
+
             <div class="flex space-x-1 bg-gray-900 p-1 rounded-md border border-gray-800">
                 <button onclick="changeLang('EN')" class="px-2 py-0.5 rounded text-xs hover:bg-gray-700 transition lang-btn" data-lang="EN">EN</button>
                 <button onclick="changeLang('UA')" class="px-2 py-0.5 rounded text-xs bg-gray-700 text-white font-bold transition lang-btn" data-lang="UA">UA</button>
@@ -78,7 +85,7 @@
 
             <span class="hidden md:inline font-medium text-gray-200">Александр</span>
             <img src="https://placehold.co/40x40/333333/ffffff?text=U" alt="Avatar" class="w-8 h-8 rounded-full border border-gray-600 object-cover">
-
+            
             <div class="bg-gray-900 px-3 py-1 rounded-lg border border-gray-800 flex items-center space-x-1 text-emerald-400 font-bold">
                 <i class="fa-solid fa-cart-shopping text-xs"></i>
                 <span id="totalSum">0 грн</span>
@@ -86,172 +93,186 @@
         </div>
     </header>
 
-    <!-- Стеклянная строка «Сортувати товари» прямо под верхней шапкой -->
-    <div class="w-full px-4 md:px-6 pt-4">
-        <div class="glass-bar rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300">
-                    <i class="fa-solid fa-sliders"></i>
-                </div>
-                <div>
-                    <h2 class="text-sm font-bold text-white uppercase tracking-wider">Сортувати товари</h2>
-                    <p class="text-xs text-gray-400">Выберите удобный способ сортировки результатов</p>
+    <!-- Стеклянная строка сортировки чуть ниже верхней синей/черной шапки -->
+    <div class="bg-slate-900/80 backdrop-blur-md border-b border-white/10 px-6 py-3 flex flex-wrap items-center justify-between gap-4 sticky top-[57px] z-40">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-emerald-400 text-sm"></i>
+            <span class="text-sm font-bold text-white">Сортувати товари:</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <select id="sortSelect" onchange="filterCatalog()" class="bg-zinc-900 text-gray-200 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <option value="default">За замовчуванням</option>
+                <option value="cheap-first">Від дешевих до дорогих</option>
+                <option value="expensive-first">Від дорогих до дешевих</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Основной контейнер с левыми фильтрами и списком товаров -->
+    <div class="flex flex-1 flex-col md:flex-row relative p-4 md:p-6 gap-6">
+        
+        <!-- Левая часть: Фильтры -->
+        <aside class="w-full md:w-80 bg-zinc-900 text-gray-300 p-4 rounded-2xl shadow-xl shrink-0 flex flex-col space-y-6 h-fit">
+            
+            <!-- Выбранные фильтры сверху -->
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Обрані фільтри</h4>
+                <div id="activeFilters" class="flex flex-wrap gap-1.5 min-h-[30px] p-2 bg-zinc-950/50 rounded-lg border border-zinc-800 text-xs text-gray-400">
+                    Немає обраних фільтрів
                 </div>
             </div>
-            
-            <div class="flex items-center gap-3 w-full sm:w-auto">
-                <select id="sortSelect" onchange="applyFilters()" class="w-full sm:w-64 bg-zinc-900 text-gray-200 text-xs px-4 py-2.5 rounded-xl border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="default">По умолчанию</option>
-                    <option value="cheap">От дешевых к дорогим</option>
-                    <option value="expensive">От дорогих к дешевым</option>
-                    <option value="popular">По популярности</option>
-                </select>
-                <div class="bg-indigo-900/40 border border-indigo-700/50 text-indigo-200 text-xs px-3.5 py-2.5 rounded-xl font-medium shrink-0">
-                    Найдено: <span id="foundCount" class="font-bold text-white">0</span>
+
+            <!-- 3 категории с раскрывающимися подкатегориями через галочки -->
+            <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Категорії та підкатегорії</h3>
+                <div class="space-y-3 text-sm">
+                    <!-- Категория 1 -->
+                    <div class="border-b border-zinc-800 pb-2">
+                        <label class="flex items-center space-x-2 font-medium cursor-pointer hover:text-white">
+                            <input type="checkbox" class="cat-checkbox rounded bg-zinc-800 border-zinc-700 text-emerald-500 focus:ring-0" value="Электроника" onchange="filterCatalog()">
+                            <span>Электроника</span>
+                        </label>
+                        <div class="pl-6 mt-1.5 space-y-1 text-xs text-gray-400">
+                            <label class="flex items-center space-x-2 cursor-pointer hover:text-gray-200">
+                                <input type="checkbox" class="subcat-checkbox rounded bg-zinc-800 border-zinc-700 text-emerald-500" value="Смартфоны и гаджеты" onchange="filterCatalog()">
+                                <span>Смартфоны и гаджеты</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:text-gray-200">
+                                <input type="checkbox" class="subcat-checkbox rounded bg-zinc-800 border-zinc-700 text-emerald-500" value="Аудио и колонки" onchange="filterCatalog()">
+                                <span>Аудио и колонки</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Категория 2 -->
+                    <div class="border-b border-zinc-800 pb-2">
+                        <label class="flex items-center space-x-2 font-medium cursor-pointer hover:text-white">
+                            <input type="checkbox" class="cat-checkbox rounded bg-zinc-800 border-zinc-700 text-emerald-500 focus:ring-0" value="Одежда и аксессуары" onchange="filterCatalog()">
+                            <span>Одежда и аксессуары</span>
+                        </label>
+                        <div class="pl-6 mt-1.5 space-y-1 text-xs text-gray-400">
+                            <label class="flex items-center space-x-2 cursor-pointer hover:text-gray-200">
+                                <input type="checkbox" class="subcat-checkbox rounded bg-zinc-800 border-zinc-700 text-emerald-500" value="Рюкзаки и сумки" onchange="filterCatalog()">
+                                <span>Рюкзаки и сумки</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:text-gray-200">
+                                <input type="checkbox" class="subcat-checkbox rounded bg-zinc-800 border-zinc-700 text-emerald-500" value="Повседневная одежда" onchange="filterCatalog()">
+                                <span>Повседневная одежда</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Категория 3 -->
+                    <div>
+                        <label class="flex items-center space-x-2 font-medium cursor-pointer hover:text-white">
+                            <input type="checkbox" class="cat-checkbox rounded bg-zinc-800 border-zinc-700 text-emerald-500 focus:ring-0" value="Дом и спорт" onchange="filterCatalog()">
+                            <span>Дом и спорт</span>
+                        </label>
+                        <div class="pl-6 mt-1.5 space-y-1 text-xs text-gray-400">
+                            <label class="flex items-center space-x-2 cursor-pointer hover:text-gray-200">
+                                <input type="checkbox" class="subcat-checkbox rounded bg-zinc-800 border-zinc-700 text-emerald-500" value="Освещение" onchange="filterCatalog()">
+                                <span>Освещение</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer hover:text-gray-200">
+                                <input type="checkbox" class="subcat-checkbox rounded bg-zinc-800 border-zinc-700 text-emerald-500" value="Фитнес и отдых" onchange="filterCatalog()">
+                                <span>Фитнес и отдых</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Фильтр по цене -->
+            <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Фильтр по цене (до)</h3>
+                <input type="range" id="priceRange" min="100" max="5000" step="50" value="5000" oninput="document.getElementById('priceVal').innerText = this.value + ' грн'; filterCatalog();" class="w-full accent-emerald-500 bg-zinc-800">
+                <div class="text-right text-xs text-emerald-400 font-bold mt-1" id="priceVal">5000 грн</div>
+            </div>
+
+            <!-- Страна-производитель (несколько вариантов) -->
+            <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Страна-производитель</h3>
+                <div class="space-y-1.5 text-xs text-gray-300">
+                    <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="country-checkbox rounded bg-zinc-800 border-zinc-700 text-emerald-500" value="Украина" onchange="filterCatalog()"> <span>Украина</span></label>
+                    <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="country-checkbox rounded bg-zinc-800 border-zinc-700 text-emerald-500" value="Китай" onchange="filterCatalog()"> <span>Китай</span></label>
+                    <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="country-checkbox rounded bg-zinc-800 border-zinc-700 text-emerald-500" value="Германия" onchange="filterCatalog()"> <span>Германия</span></label>
+                    <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="country-checkbox rounded bg-zinc-800 border-zinc-700 text-emerald-500" value="США" onchange="filterCatalog()"> <span>США</span></label>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Правая часть: Все товары -->
+        <main class="flex-1 flex flex-col space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-bold flex items-center gap-2"><i class="fa-solid fa-boxes-stacked text-indigo-500"></i> Каталог товаров</h2>
+                <span id="productsCount" class="text-xs text-gray-400">Найдено: 0</span>
+            </div>
+
+            <div id="catalogGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4">
+                <!-- Товары заполняются динамически -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Модальное окно корзины (синхронизированное) -->
+    <div id="cartModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-black border border-zinc-800 rounded-3xl w-full max-w-4xl h-[75vh] flex flex-col shadow-2xl overflow-hidden relative">
+            <div class="px-6 py-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/50">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-cart-shopping text-emerald-400"></i> Кошик замовлень
+                </h3>
+                <button onclick="toggleCartModal()" class="text-gray-400 hover:text-white text-lg w-8 h-8 rounded-full flex items-center justify-center bg-zinc-800">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+                <div class="w-full md:w-1/2 p-4 overflow-y-auto border-r border-zinc-800 space-y-3" id="cartItemsLeft">
+                    <!-- Заполняется JS -->
+                </div>
+
+                <div class="w-full md:w-1/2 p-4 flex flex-col justify-between bg-zinc-950">
+                    <div class="flex-1 overflow-y-auto pr-2">
+                        <h4 class="text-xs uppercase font-bold text-gray-500 mb-3 tracking-wider">Перелік замовлених товарів</h4>
+                        <ol id="cartNamesRight" class="list-decimal list-inside space-y-2 text-sm text-gray-300">
+                            <!-- Заполняется JS -->
+                        </ol>
+                    </div>
+
+                    <div class="pt-4 border-t border-zinc-800 mt-2">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-sm font-semibold text-gray-400">Сума замовлення:</span>
+                            <span id="modalTotalSum" class="text-lg font-black text-emerald-400">0 грн</span>
+                        </div>
+                        <button onclick="checkout()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow-lg text-sm flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check"></i> Оформити замовлення
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Основной контент: Слева Фильтры, Справа Каталог -->
-    <div class="flex flex-1 flex-col md:flex-row p-4 md:p-6 gap-6">
-        
-        <!-- ЛЕВАЯ ЧАСТЬ: Фильтры -->
-        <aside class="w-full md:w-80 bg-zinc-900/90 backdrop-blur-md p-5 rounded-2xl border border-zinc-800 shadow-xl shrink-0 space-y-6">
-            
-            <!-- Надпись выбранных фильтров сверху -->
-            <div class="border-b border-zinc-800 pb-3">
-                <h3 class="text-sm font-black uppercase tracking-wider text-indigo-400 flex items-center gap-2">
-                    <i class="fa-solid fa-filter"></i> Выбранные фильтры
-                </h3>
-                <div id="activeFiltersSummary" class="text-xs text-gray-400 mt-1.5 flex flex-wrap gap-1">
-                    <span class="bg-zinc-800 px-2 py-0.5 rounded text-gray-300">Все товары</span>
-                </div>
-            </div>
-
-            <!-- 3 категории с подкатегориями (раскрывающиеся с помощью галочек) -->
-            <div class="space-y-4">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400">Категории и подкатегории</h4>
-                
-                <!-- Категория 1: Электроника -->
-                <div class="bg-zinc-800/40 p-3 rounded-xl border border-zinc-800">
-                    <label class="flex items-center gap-2 font-semibold text-xs text-white cursor-pointer select-none">
-                        <input type="checkbox" class="cat-checkbox rounded text-indigo-600 focus:ring-0" value="electronics" onchange="toggleSubcategories('sub-elec', this); applyFilters();">
-                        <span>Электроника</span>
-                    </label>
-                    <div id="sub-elec" class="pl-5 mt-2 space-y-1.5 border-l-2 border-indigo-500/30 ml-2">
-                        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
-                            <input type="checkbox" class="subcat-checkbox rounded text-indigo-600 focus:ring-0" value="смартфоны" onchange="applyFilters()"> Смартфоны и гаджеты
-                        </label>
-                        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
-                            <input type="checkbox" class="subcat-checkbox rounded text-indigo-600 focus:ring-0" value="наушники" onchange="applyFilters()"> Наушники и звук
-                        </label>
-                        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
-                            <input type="checkbox" class="subcat-checkbox rounded text-indigo-600 focus:ring-0" value="аксессуары" onchange="applyFilters()"> Аксессуары
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Категория 2: Одежда и стиль -->
-                <div class="bg-zinc-800/40 p-3 rounded-xl border border-zinc-800">
-                    <label class="flex items-center gap-2 font-semibold text-xs text-white cursor-pointer select-none">
-                        <input type="checkbox" class="cat-checkbox rounded text-indigo-600 focus:ring-0" value="clothing" onchange="toggleSubcategories('sub-cloth', this); applyFilters();">
-                        <span>Одежда и стиль</span>
-                    </label>
-                    <div id="sub-cloth" class="pl-5 mt-2 space-y-1.5 border-l-2 border-indigo-500/30 ml-2">
-                        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
-                            <input type="checkbox" class="subcat-checkbox rounded text-indigo-600 focus:ring-0" value="рюкзаки" onchange="applyFilters()"> Рюкзаки и сумки
-                        </label>
-                        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
-                            <input type="checkbox" class="subcat-checkbox rounded text-indigo-600 focus:ring-0" value="одежда" onchange="applyFilters()"> Повседневная одежда
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Категория 3: Дом, сад и спорт -->
-                <div class="bg-zinc-800/40 p-3 rounded-xl border border-zinc-800">
-                    <label class="flex items-center gap-2 font-semibold text-xs text-white cursor-pointer select-none">
-                        <input type="checkbox" class="cat-checkbox rounded text-indigo-600 focus:ring-0" value="home" onchange="toggleSubcategories('sub-home', this); applyFilters();">
-                        <span>Дом, сад и спорт</span>
-                    </label>
-                    <div id="sub-home" class="pl-5 mt-2 space-y-1.5 border-l-2 border-indigo-500/30 ml-2">
-                        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
-                            <input type="checkbox" class="subcat-checkbox rounded text-indigo-600 focus:ring-0" value="дом" onchange="applyFilters()"> Дом и уют
-                        </label>
-                        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
-                            <input type="checkbox" class="subcat-checkbox rounded text-indigo-600 focus:ring-0" value="спорт" onchange="applyFilters()"> Спорт и отдых
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Фильтрация по цене -->
-            <div class="space-y-2 border-t border-zinc-800 pt-4">
-                <div class="flex justify-between items-center text-xs">
-                    <span class="font-bold text-gray-300 uppercase tracking-wider">Максимальная цена</span>
-                    <span id="priceVal" class="font-bold text-emerald-400">5000 грн</span>
-                </div>
-                <input type="range" id="priceRange" min="100" max="5000" step="50" value="5000" oninput="document.getElementById('priceVal').innerText = this.value + ' грн'; applyFilters();" class="w-full accent-indigo-500 bg-zinc-800 rounded-lg h-2 cursor-pointer">
-            </div>
-
-            <!-- Выбор страны-производителя (несколько стран) -->
-            <div class="space-y-3 border-t border-zinc-800 pt-4">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400">Страна-производитель</h4>
-                <div class="space-y-2">
-                    <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
-                        <input type="checkbox" class="country-checkbox rounded text-indigo-600 focus:ring-0" value="Украина" onchange="applyFilters()"> Украина
-                    </label>
-                    <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
-                        <input type="checkbox" class="country-checkbox rounded text-indigo-600 focus:ring-0" value="Китай" onchange="applyFilters()"> Китай
-                    </label>
-                    <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
-                        <input type="checkbox" class="country-checkbox rounded text-indigo-600 focus:ring-0" value="Германия" onchange="applyFilters()"> Германия
-                    </label>
-                    <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
-                        <input type="checkbox" class="country-checkbox rounded text-indigo-600 focus:ring-0" value="США" onchange="applyFilters()"> США
-                    </label>
-                    <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
-                        <input type="checkbox" class="country-checkbox rounded text-indigo-600 focus:ring-0" value="Япония" onchange="applyFilters()"> Япония
-                    </label>
-                </div>
-            </div>
-
-            <button onclick="resetFilters()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-gray-300 text-xs py-2 rounded-xl transition font-semibold">
-                Сбросить все фильтры
-            </button>
-        </aside>
-
-        <!-- ПРАВАЯ ЧАСТЬ: Сетка всех товаров -->
-        <main class="flex-1 flex flex-col space-y-4">
-            <div id="catalogGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                <!-- Товары рендерятся скриптом -->
-            </div>
-        </main>
-    </div>
-
-    <!-- 3. Нижняя черная шапка (Footer) -->
+    <!-- Футер -->
     <footer class="bg-black text-gray-400 py-8 px-6 mt-8 border-t border-gray-900">
         <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
                 <h3 class="text-white text-base font-bold mb-2 flex items-center gap-2"><i class="fa-solid fa-bolt text-yellow-400"></i> svetlickicki</h3>
-                <p class="text-xs text-gray-400 leading-relaxed">
-                    Ваш надежный интернет-магазин с большим выбором качественных товаров по доступным ценам. Быстрая доставка, удобная оплата и гарантированное качество каждого продукта.
-                </p>
+                <p class="text-xs text-gray-400 leading-relaxed">Ваш надежный интернет-магазин с большим выбором качественных товаров.</p>
             </div>
             <div>
                 <h3 class="text-white text-base font-bold mb-2">Контакты</h3>
                 <ul class="space-y-1.5 text-xs">
                     <li class="flex items-center gap-2"><i class="fa-solid fa-phone text-emerald-400"></i> +38 (0800) 123-45-67</li>
                     <li class="flex items-center gap-2"><i class="fa-solid fa-envelope text-blue-400"></i> support@svetlickicki.com</li>
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-rose-400"></i> г. Киев, ул. Торговая, 15</li>
                 </ul>
             </div>
             <div>
-                <h3 class="text-white text-base font-bold mb-2">Мы в социальных сетях</h3>
+                <h3 class="text-white text-base font-bold mb-2">Социальные сети</h3>
                 <div class="flex space-x-3">
                     <a href="#" class="w-9 h-9 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-pink-600 hover:text-white transition text-sm"><i class="fa-brands fa-instagram"></i></a>
                     <a href="#" class="w-9 h-9 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-blue-500 hover:text-white transition text-sm"><i class="fa-brands fa-telegram"></i></a>
-                    <a href="#" class="w-9 h-9 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition text-sm"><i class="fa-brands fa-facebook-f"></i></a>
                 </div>
             </div>
         </div>
@@ -261,140 +282,148 @@
     </footer>
 
     <script>
-        // Полная база данных товаров для второго файла с учетом категорий, подкатегорий и стран
-        const catalogProducts = [
-            { id: 1, name: "Беспроводные наушники Pro Max Ultra с активным шумоподавлением", price: 2499, category: "electronics", subcategory: "наушники", country: "Китай", popularity: 95, img: "https://placehold.co/300x200/1e293b/ffffff?text=Headphones" },
-            { id: 2, name: "Смарт-часы спортивные водонепроницаемые с фитнес-трекером", price: 1850, category: "electronics", subcategory: "смартфоны", country: "Китай", popularity: 88, img: "https://placehold.co/300x200/1e293b/ffffff?text=Smart+Watch" },
-            { id: 3, name: "Портативная Bluetooth колонка с RGB подсветкой IPX7", price: 1200, category: "electronics", subcategory: "наушники", country: "Германия", popularity: 80, img: "https://placehold.co/300x200/1e293b/ffffff?text=Speaker" },
-            { id: 4, name: "Эргономичная механическая клавиатура RGB свитчи Red", price: 3100, category: "electronics", subcategory: "аксессуары", country: "США", popularity: 92, img: "https://placehold.co/300x200/1e293b/ffffff?text=Keyboard" },
-            { id: 5, name: "Внешний аккумулятор PowerBank на 20000 mAh быстрая зарядка", price: 1450, category: "electronics", subcategory: "аксессуары", country: "Китай", popularity: 85, img: "https://placehold.co/300x200/1e293b/ffffff?text=PowerBank" },
-            { id: 6, name: "Стильный рюкзак городской для ноутбука с USB портом", price: 1699, category: "clothing", subcategory: "рюкзаки", country: "Украина", popularity: 90, img: "https://placehold.co/300x200/1e293b/ffffff?text=Backpack" },
-            { id: 7, name: "Настольная LED лампа с беспроводной зарядкой", price: 999, category: "home", subcategory: "дом", country: "Германия", popularity: 75, img: "https://placehold.co/300x200/1e293b/ffffff?text=LED+Lamp" },
-            { id: 8, name: "Спортивная бутылка для воды из тритана со шкалой", price: 450, category: "home", subcategory: "спорт", country: "Япония", popularity: 70, img: "https://placehold.co/300x200/1e293b/ffffff?text=Bottle" },
-            { id: 9, name: "Мини-штатив для смартфона гибкий портативный", price: 299, category: "electronics", subcategory: "аксессуары", country: "Китай", popularity: 65, img: "https://placehold.co/300x200/1e293b/ffffff?text=Tripod" },
-            { id: 10, name: "Беспроводная мышь бесшумная эргономичная", price: 399, category: "electronics", subcategory: "аксессуары", country: "США", popularity: 82, img: "https://placehold.co/300x200/1e293b/ffffff?text=Mouse" },
-            { id: 11, name: "Коврик для мыши большой игровой с подсветкой", price: 450, category: "electronics", subcategory: "аксессуары", country: "Украина", popularity: 78, img: "https://placehold.co/300x200/1e293b/ffffff?text=Pad" },
-            { id: 12, name: "Органайзер для проводов и зарядок силиконовый", price: 150, category: "home", subcategory: "дом", country: "Китай", popularity: 60, img: "https://placehold.co/300x200/1e293b/ffffff?text=Organizer" }
+        const allCatalogProducts = [
+            { id: 1, name: "Беспроводные наушники Pro Max Ultra", price: 2499, category: "Электроника", subcategory: "Аудио и колонки", country: "Китай", img: "https://placehold.co/300x200/1e293b/ffffff?text=Headphones" },
+            { id: 2, name: "Смарт-часы спортивные водонепроницаемые", price: 1850, category: "Электроника", subcategory: "Смартфоны и гаджеты", country: "Китай", img: "https://placehold.co/300x200/1e293b/ffffff?text=Smart+Watch" },
+            { id: 3, name: "Портативная Bluetooth колонка с RGB", price: 1200, category: "Электроника", subcategory: "Аудио и колонки", country: "Китай", img: "https://placehold.co/300x200/1e293b/ffffff?text=Speaker" },
+            { id: 4, name: "Эргономичная механическая клавиатура", price: 3100, category: "Электроника", subcategory: "Смартфоны и гаджеты", country: "Германия", img: "https://placehold.co/300x200/1e293b/ffffff?text=Keyboard" },
+            { id: 5, name: "Внешний аккумулятор PowerBank 20000 mAh", price: 1450, category: "Электроника", subcategory: "Смартфоны и гаджеты", country: "Китай", img: "https://placehold.co/300x200/1e293b/ffffff?text=PowerBank" },
+            { id: 6, name: "Стильный рюкзак городской с USB", price: 1699, category: "Одежда и аксессуары", subcategory: "Рюкзаки и сумки", country: "Украина", img: "https://placehold.co/300x200/1e293b/ffffff?text=Backpack" },
+            { id: 7, name: "Настольная LED лампа с зарядкой", price: 999, category: "Дом и спорт", subcategory: "Освещение", country: "Германия", img: "https://placehold.co/300x200/1e293b/ffffff?text=LED+Lamp" },
+            { id: 8, name: "Спортивная бутылка для воды", price: 450, category: "Дом и спорт", subcategory: "Фитнес и отдых", country: "Украина", img: "https://placehold.co/300x200/1e293b/ffffff?text=Bottle" },
+            { id: 9, name: "Фитнес-браслет с пульсометром", price: 890, category: "Электроника", subcategory: "Смартфоны и гаджеты", country: "Китай", img: "https://placehold.co/300x200/1e293b/ffffff?text=Fitness+Band" },
+            { id: 10, name: "Спортивный костюм мужской", price: 1950, category: "Одежда и аксессуары", subcategory: "Повседневная одежда", country: "Украина", img: "https://placehold.co/300x200/1e293b/ffffff?text=Sport+Suit" },
+            { id: 11, name: "Набор светодиодных лент для дома", price: 650, category: "Дом и спорт", subcategory: "Освещение", country: "Китай", img: "https://placehold.co/300x200/1e293b/ffffff?text=LED+Strip" },
+            { id: 12, name: "Универсальный туристический рюкзак", price: 2800, category: "Одежда и аксессуары", subcategory: "Рюкзаки и сумки", country: "США", img: "https://placehold.co/300x200/1e293b/ffffff?text=Tour+Backpack" }
         ];
 
-        let currentCartSum = 0;
+        let cart = JSON.parse(localStorage.getItem('svetlickicki_cart')) || [];
 
-        // Раскрытие/скрытие подкатегорий галочками
-        function toggleSubcategories(containerId, checkbox) {
-            const container = document.getElementById(containerId);
-            if (checkbox.checked) {
-                container.classList.remove('hidden');
+        function saveCart() {
+            localStorage.setItem('svetlickicki_cart', JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        function addToCart(name, price, img) {
+            cart.push({ name, price, img });
+            saveCart();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            saveCart();
+        }
+
+        function updateCartUI() {
+            let totalSum = cart.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById('totalSum').innerText = totalSum + ' грн';
+            document.getElementById('modalTotalSum').innerText = totalSum + ' грн';
+            document.getElementById('cartBadge').innerText = cart.length;
+
+            const leftContainer = document.getElementById('cartItemsLeft');
+            if (cart.length === 0) {
+                leftContainer.innerHTML = `<p class="text-xs text-gray-500 text-center py-8">Кошик порожній</p>`;
             } else {
-                container.classList.add('hidden');
-                // снимаем галочки с дочерних
-                container.querySelectorAll('input[type="checkbox"]').forEach(sub => sub.checked = false);
+                leftContainer.innerHTML = cart.map((item, index) => `
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-2.5 flex items-center justify-between gap-3">
+                        <div class="text-xs font-bold text-gray-500 w-6 text-center">#${index + 1}</div>
+                        <img src="${item.img}" alt="${item.name}" class="w-14 h-12 object-cover rounded-lg bg-zinc-800">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-xs font-medium text-gray-200 truncate" title="${item.name}">${item.name}</h4>
+                            <div class="text-xs font-bold text-emerald-400 mt-1">${item.price} грн</div>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-300 p-2 text-xs">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            const rightContainer = document.getElementById('cartNamesRight');
+            if (cart.length === 0) {
+                rightContainer.innerHTML = `<li class="text-xs text-gray-500">Список замовлень пустий</li>`;
+            } else {
+                rightContainer.innerHTML = cart.map(item => `
+                    <li class="text-xs text-gray-200 py-1 border-b border-zinc-900 flex justify-between">
+                        <span>${item.name}</span>
+                        <span class="font-bold text-emerald-400 ml-2">${item.price} грн</span>
+                    </li>
+                `).join('');
             }
         }
 
-        // Основная функция фильтрации и сортировки
-        function applyFilters() {
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+        function toggleCartModal() {
+            document.getElementById('cartModal').classList.toggle('hidden');
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                alert('Кошик порожній!');
+                return;
+            }
+            alert('Замовлення успішно оформлено!');
+            cart = [];
+            saveCart();
+            toggleCartModal();
+        }
+
+        function filterCatalog() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             const maxPrice = parseInt(document.getElementById('priceRange').value);
             const sortType = document.getElementById('sortSelect').value;
 
-            // Сбор отмеченных категорий
-            const selectedCategories = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(cb => cb.value);
-            // Сбор отмеченных подкатегорий
-            const selectedSubcategories = Array.from(document.querySelectorAll('.subcat-checkbox:checked')).map(cb => cb.value);
-            // Сбор отмеченных стран
-            const selectedCountries = Array.from(document.querySelectorAll('.country-checkbox:checked')).map(cb => cb.value);
+            const selectedCats = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(el => el.value);
+            const selectedSubcats = Array.from(document.querySelectorAll('.subcat-checkbox:checked')).map(el => el.value);
+            const selectedCountries = Array.from(document.querySelectorAll('.country-checkbox:checked')).map(el => el.value);
 
-            // Фильтрация
-            let filtered = catalogProducts.filter(p => {
-                // Поиск по названию
-                if (searchQuery && !p.name.toLowerCase().includes(searchQuery)) return false;
-                // Цена
-                if (p.price > maxPrice) return false;
-                // Категория
-                if (selectedCategories.length > 0 && !selectedCategories.includes(p.category)) return false;
-                // Подкатегория
-                if (selectedSubcategories.length > 0 && !selectedSubcategories.includes(p.subcategory)) return false;
-                // Страна (если выбрано несколько, товар должен соответствовать любой из них)
-                if (selectedCountries.length > 0 && !selectedCountries.includes(p.country)) return false;
-
-                return true;
-            });
-
-            // Сортировка
-            if (sortType === 'cheap') {
-                filtered.sort((a, b) => a.price - b.price);
-            } else if (sortType === 'expensive') {
-                filtered.sort((a, b) => b.price - a.price);
-            } else if (sortType === 'popular') {
-                filtered.sort((a, b) => b.popularity - a.popularity);
+            // Обновление блока выбранных фильтров сверху
+            const activeFiltersContainer = document.getElementById('activeFilters');
+            let activeTags = [...selectedCats, ...selectedSubcats, ...selectedCountries];
+            if (activeTags.length > 0) {
+                activeFiltersContainer.innerHTML = activeTags.map(tag => `<span class="bg-indigo-900/60 text-indigo-300 px-2 py-0.5 rounded border border-indigo-700/50">${tag}</span>`).join('');
+            } else {
+                activeFiltersContainer.innerHTML = `<span class="text-gray-500">Немає обраних фільтрів</span>`;
             }
 
-            // Обновление блока выбранных фильтров вверху сайдбара
-            updateActiveFiltersSummary(selectedCategories, selectedSubcategories, selectedCountries, maxPrice);
+            let filtered = allCatalogProducts.filter(p => {
+                let matchesSearch = p.name.toLowerCase().includes(searchQuery);
+                let matchesPrice = p.price <= maxPrice;
+                let matchesCat = selectedCats.length === 0 || selectedCats.includes(p.category);
+                let matchesSubcat = selectedSubcats.length === 0 || selectedSubcats.includes(p.subcategory);
+                let matchesCountry = selectedCountries.length === 0 || selectedCountries.includes(p.country);
 
-            // Рендеринг
-            renderCatalog(filtered);
-        }
+                return matchesSearch && matchesPrice && matchesCat && matchesSubcat && matchesCountry;
+            });
 
-        // Вывод сводки выбранных фильтров
-        function updateActiveFiltersSummary(cats, subcats, countries, price) {
-            const summaryDiv = document.getElementById('activeFiltersSummary');
-            let tags = [];
+            if (sortType === 'cheap-first') {
+                filtered.sort((a, b) => a.price - b.price);
+            } else if (sortType === 'expensive-first') {
+                filtered.sort((a, b) => b.price - a.price);
+            }
 
-            if (cats.length > 0) tags.push(`Категории: ${cats.length}`);
-            if (subcats.length > 0) tags.push(`Подкатегории: ${subcats.length}`);
-            if (countries.length > 0) tags.push(`Страны: ${countries.join(', ')}`);
-            tags.push(`до ${price} грн`);
-
-            summaryDiv.innerHTML = tags.map(t => `<span class="bg-indigo-900/60 text-indigo-200 border border-indigo-700/50 px-2 py-0.5 rounded text-[11px] font-medium">${t}</span>`).join('');
-        }
-
-        // Рендеринг товаров на второй странице
-        function renderCatalog(products) {
             const grid = document.getElementById('catalogGrid');
-            document.getElementById('foundCount').innerText = products.length;
+            document.getElementById('productsCount').innerText = `Найдено: ${filtered.length}`;
 
-            if (products.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-16 text-gray-400 text-sm glass-card rounded-2xl">По вашему запросу и выбранным фильтрам товаров не найдено.</div>`;
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-500 text-sm">Товары не найдены</div>`;
                 return;
             }
 
-            grid.innerHTML = products.map(p => `
-                <div class="glass-card rounded-xl p-3 flex flex-col justify-between h-80">
-                    <div class="w-full h-36 rounded-lg overflow-hidden bg-zinc-800/50 mb-2 relative">
+            grid.innerHTML = filtered.map(p => `
+                <div class="glass-card rounded-xl p-3 flex flex-col justify-between h-72">
+                    <div class="w-full h-32 rounded-lg overflow-hidden bg-zinc-800/50 mb-2 relative">
                         <img src="${p.img}" alt="${p.name}" class="w-full h-full object-cover">
-                        <span class="absolute top-2 left-2 bg-black/70 backdrop-blur-md text-[10px] px-2 py-0.5 rounded text-white font-medium">${p.country}</span>
+                        <span class="absolute top-1 right-1 bg-black/60 text-[10px] text-gray-300 px-1.5 py-0.5 rounded">${p.country}</span>
                     </div>
-                    <h3 class="text-xs sm:text-sm font-medium text-gray-200 line-clamp-2" title="${p.name}">${p.name}</h3>
-                    <div class="mt-1 text-[11px] text-gray-400">Производитель: <span class="text-gray-300 font-semibold">${p.country}</span></div>
+                    <h3 class="text-xs font-medium text-gray-200 line-clamp-2" title="${p.name}">${p.name}</h3>
                     <div class="flex items-center justify-between mt-2 pt-2 border-t border-white/10">
-                        <span class="text-sm font-extrabold text-emerald-400">${p.price} грн</span>
-                        <button onclick="addToCart(${p.price})" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-2.5 py-1.5 rounded-lg transition font-medium flex items-center gap-1 shadow">
-                            <i class="fa-solid fa-cart-plus text-xs"></i> У кошик
+                        <span class="text-xs sm:text-sm font-bold text-emerald-400">${p.price} грн</span>
+                        <button onclick="addToCart('${p.name}', ${p.price}, '${p.img}')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-2.5 py-1.5 rounded-lg transition font-medium flex items-center gap-1 shadow">
+                            <i class="fa-solid fa-cart-plus text-[10px]"></i> У кошик
                         </button>
                     </div>
                 </div>
             `).join('');
-        }
-
-        // Сброс фильтров
-        function resetFilters() {
-            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-            document.getElementById('priceRange').value = 5000;
-            document.getElementById('priceVal').innerText = '5000 грн';
-            document.getElementById('searchInput').value = '';
-            document.getElementById('sortSelect').value = 'default';
-            // скрыть все подкатегории
-            ['sub-elec', 'sub-cloth', 'sub-home'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) el.classList.remove('hidden');
-            });
-            applyFilters();
-        }
-
-        function addToCart(price) {
-            currentCartSum += price;
-            document.getElementById('totalSum').innerText = currentCartSum + ' грн';
         }
 
         function changeLang(lang) {
@@ -408,7 +437,8 @@
         }
 
         window.onload = function() {
-            applyFilters();
+            filterCatalog();
+            updateCartUI();
         }
     </script>
 </body>
