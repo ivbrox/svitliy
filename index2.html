@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>svetlickicki - Каталог товаров</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandDark: '#121212',
+                        glassBg: 'rgba(255, 255, 255, 0.07)',
+                        glassBorder: 'rgba(255, 255, 255, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+        .glass-bar {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-pink-500 selection:text-white">
+
+    <!-- 1. Верхняя черная шапка (абсолютно идентична первой странице) -->
+    <header class="bg-black text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50 shadow-md">
+        <!-- Левый верхний угол: Кнопка возврата или Регистрация -->
+        <div class="flex items-center space-x-3">
+            <a href="index.html" class="text-sm font-semibold hover:text-gray-300 transition flex items-center gap-1 bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-700">
+                <i class="fa-solid fa-house text-xs"></i> На главную
+            </a>
+        </div>
+
+        <!-- Центр: Поиск -->
+        <div class="flex-1 max-w-md mx-4">
+            <div class="relative">
+                <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Найти продукт в каталоге..." class="w-full bg-white text-gray-900 px-4 py-1.5 pl-10 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-sm"></i>
+            </div>
+        </div>
+
+        <!-- Правый верхний угол -->
+        <div class="flex items-center space-x-3 sm:space-x-4 text-xs sm:text-sm">
+            <div class="flex space-x-1 bg-gray-900 p-1 rounded-md border border-gray-800">
+                <button onclick="changeLang('EN')" class="px-2 py-0.5 rounded text-xs hover:bg-gray-700 transition lang-btn" data-lang="EN">EN</button>
+                <button onclick="changeLang('UA')" class="px-2 py-0.5 rounded text-xs bg-gray-700 text-white font-bold transition lang-btn" data-lang="UA">UA</button>
+                <button onclick="changeLang('KZ')" class="px-2 py-0.5 rounded text-xs hover:bg-gray-700 transition lang-btn" data-lang="KZ">KZ</button>
+            </div>
+
+            <span class="hidden md:inline font-medium text-gray-200">Александр</span>
+            <img src="https://placehold.co/40x40/333333/ffffff?text=U" alt="Avatar" class="w-8 h-8 rounded-full border border-gray-600 object-cover">
+
+            <div class="bg-gray-900 px-3 py-1 rounded-lg border border-gray-800 flex items-center space-x-1 text-emerald-400 font-bold">
+                <i class="fa-solid fa-cart-shopping text-xs"></i>
+                <span id="totalSum">0 грн</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Стеклянная строка «Сортувати товари» прямо под верхней шапкой -->
+    <div class="w-full px-4 md:px-6 pt-4">
+        <div class="glass-bar rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300">
+                    <i class="fa-solid fa-sliders"></i>
+                </div>
+                <div>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider">Сортувати товари</h2>
+                    <p class="text-xs text-gray-400">Выберите удобный способ сортировки результатов</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <select id="sortSelect" onchange="applyFilters()" class="w-full sm:w-64 bg-zinc-900 text-gray-200 text-xs px-4 py-2.5 rounded-xl border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="default">По умолчанию</option>
+                    <option value="cheap">От дешевых к дорогим</option>
+                    <option value="expensive">От дорогих к дешевым</option>
+                    <option value="popular">По популярности</option>
+                </select>
+                <div class="bg-indigo-900/40 border border-indigo-700/50 text-indigo-200 text-xs px-3.5 py-2.5 rounded-xl font-medium shrink-0">
+                    Найдено: <span id="foundCount" class="font-bold text-white">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент: Слева Фильтры, Справа Каталог -->
+    <div class="flex flex-1 flex-col md:flex-row p-4 md:p-6 gap-6">
+        
+        <!-- ЛЕВАЯ ЧАСТЬ: Фильтры -->
+        <aside class="w-full md:w-80 bg-zinc-900/90 backdrop-blur-md p-5 rounded-2xl border border-zinc-800 shadow-xl shrink-0 space-y-6">
+            
+            <!-- Надпись выбранных фильтров сверху -->
+            <div class="border-b border-zinc-800 pb-3">
+                <h3 class="text-sm font-black uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                    <i class="fa-solid fa-filter"></i> Выбранные фильтры
+                </h3>
+                <div id="activeFiltersSummary" class="text-xs text-gray-400 mt-1.5 flex flex-wrap gap-1">
+                    <span class="bg-zinc-800 px-2 py-0.5 rounded text-gray-300">Все товары</span>
+                </div>
+            </div>
+
+            <!-- 3 категории с подкатегориями (раскрывающиеся с помощью галочек) -->
+            <div class="space-y-4">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400">Категории и подкатегории</h4>
+                
+                <!-- Категория 1: Электроника -->
+                <div class="bg-zinc-800/40 p-3 rounded-xl border border-zinc-800">
+                    <label class="flex items-center gap-2 font-semibold text-xs text-white cursor-pointer select-none">
+                        <input type="checkbox" class="cat-checkbox rounded text-indigo-600 focus:ring-0" value="electronics" onchange="toggleSubcategories('sub-elec', this); applyFilters();">
+                        <span>Электроника</span>
+                    </label>
+                    <div id="sub-elec" class="pl-5 mt-2 space-y-1.5 border-l-2 border-indigo-500/30 ml-2">
+                        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                            <input type="checkbox" class="subcat-checkbox rounded text-indigo-600 focus:ring-0" value="смартфоны" onchange="applyFilters()"> Смартфоны и гаджеты
+                        </label>
+                        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                            <input type="checkbox" class="subcat-checkbox rounded text-indigo-600 focus:ring-0" value="наушники" onchange="applyFilters()"> Наушники и звук
+                        </label>
+                        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                            <input type="checkbox" class="subcat-checkbox rounded text-indigo-600 focus:ring-0" value="аксессуары" onchange="applyFilters()"> Аксессуары
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Категория 2: Одежда и стиль -->
+                <div class="bg-zinc-800/40 p-3 rounded-xl border border-zinc-800">
+                    <label class="flex items-center gap-2 font-semibold text-xs text-white cursor-pointer select-none">
+                        <input type="checkbox" class="cat-checkbox rounded text-indigo-600 focus:ring-0" value="clothing" onchange="toggleSubcategories('sub-cloth', this); applyFilters();">
+                        <span>Одежда и стиль</span>
+                    </label>
+                    <div id="sub-cloth" class="pl-5 mt-2 space-y-1.5 border-l-2 border-indigo-500/30 ml-2">
+                        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                            <input type="checkbox" class="subcat-checkbox rounded text-indigo-600 focus:ring-0" value="рюкзаки" onchange="applyFilters()"> Рюкзаки и сумки
+                        </label>
+                        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                            <input type="checkbox" class="subcat-checkbox rounded text-indigo-600 focus:ring-0" value="одежда" onchange="applyFilters()"> Повседневная одежда
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Категория 3: Дом, сад и спорт -->
+                <div class="bg-zinc-800/40 p-3 rounded-xl border border-zinc-800">
+                    <label class="flex items-center gap-2 font-semibold text-xs text-white cursor-pointer select-none">
+                        <input type="checkbox" class="cat-checkbox rounded text-indigo-600 focus:ring-0" value="home" onchange="toggleSubcategories('sub-home', this); applyFilters();">
+                        <span>Дом, сад и спорт</span>
+                    </label>
+                    <div id="sub-home" class="pl-5 mt-2 space-y-1.5 border-l-2 border-indigo-500/30 ml-2">
+                        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                            <input type="checkbox" class="subcat-checkbox rounded text-indigo-600 focus:ring-0" value="дом" onchange="applyFilters()"> Дом и уют
+                        </label>
+                        <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                            <input type="checkbox" class="subcat-checkbox rounded text-indigo-600 focus:ring-0" value="спорт" onchange="applyFilters()"> Спорт и отдых
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Фильтрация по цене -->
+            <div class="space-y-2 border-t border-zinc-800 pt-4">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="font-bold text-gray-300 uppercase tracking-wider">Максимальная цена</span>
+                    <span id="priceVal" class="font-bold text-emerald-400">5000 грн</span>
+                </div>
+                <input type="range" id="priceRange" min="100" max="5000" step="50" value="5000" oninput="document.getElementById('priceVal').innerText = this.value + ' грн'; applyFilters();" class="w-full accent-indigo-500 bg-zinc-800 rounded-lg h-2 cursor-pointer">
+            </div>
+
+            <!-- Выбор страны-производителя (несколько стран) -->
+            <div class="space-y-3 border-t border-zinc-800 pt-4">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400">Страна-производитель</h4>
+                <div class="space-y-2">
+                    <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                        <input type="checkbox" class="country-checkbox rounded text-indigo-600 focus:ring-0" value="Украина" onchange="applyFilters()"> Украина
+                    </label>
+                    <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                        <input type="checkbox" class="country-checkbox rounded text-indigo-600 focus:ring-0" value="Китай" onchange="applyFilters()"> Китай
+                    </label>
+                    <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                        <input type="checkbox" class="country-checkbox rounded text-indigo-600 focus:ring-0" value="Германия" onchange="applyFilters()"> Германия
+                    </label>
+                    <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                        <input type="checkbox" class="country-checkbox rounded text-indigo-600 focus:ring-0" value="США" onchange="applyFilters()"> США
+                    </label>
+                    <label class="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                        <input type="checkbox" class="country-checkbox rounded text-indigo-600 focus:ring-0" value="Япония" onchange="applyFilters()"> Япония
+                    </label>
+                </div>
+            </div>
+
+            <button onclick="resetFilters()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-gray-300 text-xs py-2 rounded-xl transition font-semibold">
+                Сбросить все фильтры
+            </button>
+        </aside>
+
+        <!-- ПРАВАЯ ЧАСТЬ: Сетка всех товаров -->
+        <main class="flex-1 flex flex-col space-y-4">
+            <div id="catalogGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <!-- Товары рендерятся скриптом -->
+            </div>
+        </main>
+    </div>
+
+    <!-- 3. Нижняя черная шапка (Footer) -->
+    <footer class="bg-black text-gray-400 py-8 px-6 mt-8 border-t border-gray-900">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <h3 class="text-white text-base font-bold mb-2 flex items-center gap-2"><i class="fa-solid fa-bolt text-yellow-400"></i> svetlickicki</h3>
+                <p class="text-xs text-gray-400 leading-relaxed">
+                    Ваш надежный интернет-магазин с большим выбором качественных товаров по доступным ценам. Быстрая доставка, удобная оплата и гарантированное качество каждого продукта.
+                </p>
+            </div>
+            <div>
+                <h3 class="text-white text-base font-bold mb-2">Контакты</h3>
+                <ul class="space-y-1.5 text-xs">
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-phone text-emerald-400"></i> +38 (0800) 123-45-67</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-envelope text-blue-400"></i> support@svetlickicki.com</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-rose-400"></i> г. Киев, ул. Торговая, 15</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-white text-base font-bold mb-2">Мы в социальных сетях</h3>
+                <div class="flex space-x-3">
+                    <a href="#" class="w-9 h-9 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-pink-600 hover:text-white transition text-sm"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="w-9 h-9 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-blue-500 hover:text-white transition text-sm"><i class="fa-brands fa-telegram"></i></a>
+                    <a href="#" class="w-9 h-9 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition text-sm"><i class="fa-brands fa-facebook-f"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto mt-8 pt-4 border-t border-zinc-900 text-center text-xs text-gray-500">
+            &copy; 2026 svetlickicki. Все права защищены.
+        </div>
+    </footer>
+
+    <script>
+        // Полная база данных товаров для второго файла с учетом категорий, подкатегорий и стран
+        const catalogProducts = [
+            { id: 1, name: "Беспроводные наушники Pro Max Ultra с активным шумоподавлением", price: 2499, category: "electronics", subcategory: "наушники", country: "Китай", popularity: 95, img: "https://placehold.co/300x200/1e293b/ffffff?text=Headphones" },
+            { id: 2, name: "Смарт-часы спортивные водонепроницаемые с фитнес-трекером", price: 1850, category: "electronics", subcategory: "смартфоны", country: "Китай", popularity: 88, img: "https://placehold.co/300x200/1e293b/ffffff?text=Smart+Watch" },
+            { id: 3, name: "Портативная Bluetooth колонка с RGB подсветкой IPX7", price: 1200, category: "electronics", subcategory: "наушники", country: "Германия", popularity: 80, img: "https://placehold.co/300x200/1e293b/ffffff?text=Speaker" },
+            { id: 4, name: "Эргономичная механическая клавиатура RGB свитчи Red", price: 3100, category: "electronics", subcategory: "аксессуары", country: "США", popularity: 92, img: "https://placehold.co/300x200/1e293b/ffffff?text=Keyboard" },
+            { id: 5, name: "Внешний аккумулятор PowerBank на 20000 mAh быстрая зарядка", price: 1450, category: "electronics", subcategory: "аксессуары", country: "Китай", popularity: 85, img: "https://placehold.co/300x200/1e293b/ffffff?text=PowerBank" },
+            { id: 6, name: "Стильный рюкзак городской для ноутбука с USB портом", price: 1699, category: "clothing", subcategory: "рюкзаки", country: "Украина", popularity: 90, img: "https://placehold.co/300x200/1e293b/ffffff?text=Backpack" },
+            { id: 7, name: "Настольная LED лампа с беспроводной зарядкой", price: 999, category: "home", subcategory: "дом", country: "Германия", popularity: 75, img: "https://placehold.co/300x200/1e293b/ffffff?text=LED+Lamp" },
+            { id: 8, name: "Спортивная бутылка для воды из тритана со шкалой", price: 450, category: "home", subcategory: "спорт", country: "Япония", popularity: 70, img: "https://placehold.co/300x200/1e293b/ffffff?text=Bottle" },
+            { id: 9, name: "Мини-штатив для смартфона гибкий портативный", price: 299, category: "electronics", subcategory: "аксессуары", country: "Китай", popularity: 65, img: "https://placehold.co/300x200/1e293b/ffffff?text=Tripod" },
+            { id: 10, name: "Беспроводная мышь бесшумная эргономичная", price: 399, category: "electronics", subcategory: "аксессуары", country: "США", popularity: 82, img: "https://placehold.co/300x200/1e293b/ffffff?text=Mouse" },
+            { id: 11, name: "Коврик для мыши большой игровой с подсветкой", price: 450, category: "electronics", subcategory: "аксессуары", country: "Украина", popularity: 78, img: "https://placehold.co/300x200/1e293b/ffffff?text=Pad" },
+            { id: 12, name: "Органайзер для проводов и зарядок силиконовый", price: 150, category: "home", subcategory: "дом", country: "Китай", popularity: 60, img: "https://placehold.co/300x200/1e293b/ffffff?text=Organizer" }
+        ];
+
+        let currentCartSum = 0;
+
+        // Раскрытие/скрытие подкатегорий галочками
+        function toggleSubcategories(containerId, checkbox) {
+            const container = document.getElementById(containerId);
+            if (checkbox.checked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+                // снимаем галочки с дочерних
+                container.querySelectorAll('input[type="checkbox"]').forEach(sub => sub.checked = false);
+            }
+        }
+
+        // Основная функция фильтрации и сортировки
+        function applyFilters() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            const maxPrice = parseInt(document.getElementById('priceRange').value);
+            const sortType = document.getElementById('sortSelect').value;
+
+            // Сбор отмеченных категорий
+            const selectedCategories = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(cb => cb.value);
+            // Сбор отмеченных подкатегорий
+            const selectedSubcategories = Array.from(document.querySelectorAll('.subcat-checkbox:checked')).map(cb => cb.value);
+            // Сбор отмеченных стран
+            const selectedCountries = Array.from(document.querySelectorAll('.country-checkbox:checked')).map(cb => cb.value);
+
+            // Фильтрация
+            let filtered = catalogProducts.filter(p => {
+                // Поиск по названию
+                if (searchQuery && !p.name.toLowerCase().includes(searchQuery)) return false;
+                // Цена
+                if (p.price > maxPrice) return false;
+                // Категория
+                if (selectedCategories.length > 0 && !selectedCategories.includes(p.category)) return false;
+                // Подкатегория
+                if (selectedSubcategories.length > 0 && !selectedSubcategories.includes(p.subcategory)) return false;
+                // Страна (если выбрано несколько, товар должен соответствовать любой из них)
+                if (selectedCountries.length > 0 && !selectedCountries.includes(p.country)) return false;
+
+                return true;
+            });
+
+            // Сортировка
+            if (sortType === 'cheap') {
+                filtered.sort((a, b) => a.price - b.price);
+            } else if (sortType === 'expensive') {
+                filtered.sort((a, b) => b.price - a.price);
+            } else if (sortType === 'popular') {
+                filtered.sort((a, b) => b.popularity - a.popularity);
+            }
+
+            // Обновление блока выбранных фильтров вверху сайдбара
+            updateActiveFiltersSummary(selectedCategories, selectedSubcategories, selectedCountries, maxPrice);
+
+            // Рендеринг
+            renderCatalog(filtered);
+        }
+
+        // Вывод сводки выбранных фильтров
+        function updateActiveFiltersSummary(cats, subcats, countries, price) {
+            const summaryDiv = document.getElementById('activeFiltersSummary');
+            let tags = [];
+
+            if (cats.length > 0) tags.push(`Категории: ${cats.length}`);
+            if (subcats.length > 0) tags.push(`Подкатегории: ${subcats.length}`);
+            if (countries.length > 0) tags.push(`Страны: ${countries.join(', ')}`);
+            tags.push(`до ${price} грн`);
+
+            summaryDiv.innerHTML = tags.map(t => `<span class="bg-indigo-900/60 text-indigo-200 border border-indigo-700/50 px-2 py-0.5 rounded text-[11px] font-medium">${t}</span>`).join('');
+        }
+
+        // Рендеринг товаров на второй странице
+        function renderCatalog(products) {
+            const grid = document.getElementById('catalogGrid');
+            document.getElementById('foundCount').innerText = products.length;
+
+            if (products.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-16 text-gray-400 text-sm glass-card rounded-2xl">По вашему запросу и выбранным фильтрам товаров не найдено.</div>`;
+                return;
+            }
+
+            grid.innerHTML = products.map(p => `
+                <div class="glass-card rounded-xl p-3 flex flex-col justify-between h-80">
+                    <div class="w-full h-36 rounded-lg overflow-hidden bg-zinc-800/50 mb-2 relative">
+                        <img src="${p.img}" alt="${p.name}" class="w-full h-full object-cover">
+                        <span class="absolute top-2 left-2 bg-black/70 backdrop-blur-md text-[10px] px-2 py-0.5 rounded text-white font-medium">${p.country}</span>
+                    </div>
+                    <h3 class="text-xs sm:text-sm font-medium text-gray-200 line-clamp-2" title="${p.name}">${p.name}</h3>
+                    <div class="mt-1 text-[11px] text-gray-400">Производитель: <span class="text-gray-300 font-semibold">${p.country}</span></div>
+                    <div class="flex items-center justify-between mt-2 pt-2 border-t border-white/10">
+                        <span class="text-sm font-extrabold text-emerald-400">${p.price} грн</span>
+                        <button onclick="addToCart(${p.price})" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-2.5 py-1.5 rounded-lg transition font-medium flex items-center gap-1 shadow">
+                            <i class="fa-solid fa-cart-plus text-xs"></i> У кошик
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Сброс фильтров
+        function resetFilters() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.getElementById('priceRange').value = 5000;
+            document.getElementById('priceVal').innerText = '5000 грн';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('sortSelect').value = 'default';
+            // скрыть все подкатегории
+            ['sub-elec', 'sub-cloth', 'sub-home'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.classList.remove('hidden');
+            });
+            applyFilters();
+        }
+
+        function addToCart(price) {
+            currentCartSum += price;
+            document.getElementById('totalSum').innerText = currentCartSum + ' грн';
+        }
+
+        function changeLang(lang) {
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('bg-gray-700', 'text-white', 'font-bold');
+                } else {
+                    btn.classList.remove('bg-gray-700', 'text-white', 'font-bold');
+                }
+            });
+        }
+
+        window.onload = function() {
+            applyFilters();
+        }
+    </script>
+</body>
+</html>

@@ -40,6 +40,18 @@
             transform: translateY(-2px);
             transition: all 0.3s ease;
         }
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-1px);
+        }
         /* Анимация прокрутки бренда */
         @keyframes brandScroll {
             0% { transform: translateX(-100%); opacity: 0; }
@@ -50,7 +62,6 @@
         .animate-brand-marquee {
             animation: brandScroll 8s linear infinite;
         }
-        /* Скрытие полосы прокрутки для ленты новенок */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -81,20 +92,15 @@
 
         <!-- Правый верхний угол: Язык, Имя, Аватар, Сумма покупок -->
         <div class="flex items-center space-x-3 sm:space-x-4 text-xs sm:text-sm">
-            <!-- Переключатель языков -->
             <div class="flex space-x-1 bg-gray-900 p-1 rounded-md border border-gray-800">
                 <button onclick="changeLang('EN')" class="px-2 py-0.5 rounded text-xs hover:bg-gray-700 transition lang-btn" data-lang="EN">EN</button>
                 <button onclick="changeLang('UA')" class="px-2 py-0.5 rounded text-xs bg-gray-700 text-white font-bold transition lang-btn" data-lang="UA">UA</button>
                 <button onclick="changeLang('KZ')" class="px-2 py-0.5 rounded text-xs hover:bg-gray-700 transition lang-btn" data-lang="KZ">KZ</button>
             </div>
 
-            <!-- Имя пользователя -->
             <span class="hidden md:inline font-medium text-gray-200">Александр</span>
-
-            <!-- Круглая аватарка пользователя -->
             <img src="https://placehold.co/40x40/333333/ffffff?text=U" alt="Avatar" class="w-8 h-8 rounded-full border border-gray-600 object-cover">
 
-            <!-- Сумма покупок -->
             <div class="bg-gray-900 px-3 py-1 rounded-lg border border-gray-800 flex items-center space-x-1 text-emerald-400 font-bold">
                 <i class="fa-solid fa-cart-shopping text-xs"></i>
                 <span id="totalSum">0 грн</span>
@@ -107,34 +113,40 @@
         
         <!-- 2. Боковая шапка (Sidebar) слева -->
         <aside class="w-full md:w-64 bg-zinc-900 text-gray-300 p-4 rounded-r-2xl shadow-xl flex flex-col justify-between shrink-0 my-2 md:my-4">
-            <div>
-                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3 px-2">Категории товаров</h3>
-                <nav class="space-y-1">
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-zinc-800 text-sm transition"><i class="fa-solid fa-laptop text-gray-400 w-5"></i><span>Электроника</span></a>
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-zinc-800 text-sm transition"><i class="fa-solid fa-shirt text-gray-400 w-5"></i><span>Одежда</span></a>
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-zinc-800 text-sm transition"><i class="fa-solid fa-house text-gray-400 w-5"></i><span>Дом и сад</span></a>
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-zinc-800 text-sm transition"><i class="fa-solid fa-futbol text-gray-400 w-5"></i><span>Спорт</span></a>
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-zinc-800 text-sm transition"><i class="fa-solid fa-spray-can-sparkles text-gray-400 w-5"></i><span>Красота</span></a>
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-zinc-800 text-sm transition"><i class="fa-solid fa-book text-gray-400 w-5"></i><span>Книги</span></a>
-                </nav>
+            <div class="space-y-4">
+                <!-- Стеклянная кнопка "Все товары" чуть выше категорий -->
+                <a href="./index2.html" class="w-full glass-btn text-white text-sm font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg text-decoration-none">
+                    <i class="fa-solid fa-boxes-stacked text-indigo-400"></i> Все товары
+                </a>
+
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3 px-2">Категории товаров</h3>
+                    <nav class="space-y-1">
+                        <a href="catalog.html" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-zinc-800 text-sm transition"><i class="fa-solid fa-laptop text-gray-400 w-5"></i><span>Электроника</span></a>
+                        <a href="catalog.html" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-zinc-800 text-sm transition"><i class="fa-solid fa-shirt text-gray-400 w-5"></i><span>Одежда</span></a>
+                        <a href="catalog.html" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-zinc-800 text-sm transition"><i class="fa-solid fa-house text-gray-400 w-5"></i><span>Дом и сад</span></a>
+                        <a href="catalog.html" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-zinc-800 text-sm transition"><i class="fa-solid fa-futbol text-gray-400 w-5"></i><span>Спорт</span></a>
+                        <a href="catalog.html" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-zinc-800 text-sm transition"><i class="fa-solid fa-spray-can-sparkles text-gray-400 w-5"></i><span>Красота</span></a>
+                        <a href="catalog.html" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-zinc-800 text-sm transition"><i class="fa-solid fa-book text-gray-400 w-5"></i><span>Книги</span></a>
+                    </nav>
+                </div>
             </div>
 
-            <!-- Чуть ниже в этой же шапке: Реклама наших же товаров -->
+            <!-- Реклама наших же товаров -->
             <div class="mt-8 bg-gradient-to-br from-indigo-900 to-purple-900 p-3 rounded-xl border border-indigo-700/50 text-center relative overflow-hidden shadow-inner">
                 <div class="absolute -right-4 -bottom-4 text-white/10 text-6xl font-black">svetlickicki</div>
                 <span class="bg-pink-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">Акция дня</span>
                 <h4 class="text-sm font-bold text-white mt-2">Бестселлер сезона</h4>
                 <p class="text-xs text-indigo-200 mt-1">Скидка -30% на всю брендовую продукцию</p>
-                <button class="mt-3 bg-white text-gray-900 font-semibold text-xs px-3 py-1.5 rounded-lg hover:bg-gray-100 transition shadow">Узнать больше</button>
+                <a href="catalog.html" class="mt-3 inline-block bg-white text-gray-900 font-semibold text-xs px-3 py-1.5 rounded-lg hover:bg-gray-100 transition shadow">Узнать больше</a>
             </div>
         </aside>
 
         <!-- Основная область справа от сайдбара -->
         <main class="flex-1 p-4 md:p-6 flex flex-col space-y-6">
 
-            <!-- 4.1. Главный слайдер с рекламой и прокруткой бренда -->
+            <!-- 4.1. Главный слайдер с рекламой -->
             <section class="relative w-full h-48 sm:h-64 rounded-2xl overflow-hidden shadow-2xl glass-card">
-                <!-- Слайды -->
                 <div id="slider" class="absolute inset-0 flex transition-transform duration-700 ease-in-out">
                     <div class="min-w-full h-full flex items-center justify-center relative bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900 p-6">
                         <div class="text-center z-10">
@@ -159,42 +171,32 @@
                     </div>
                 </div>
 
-                <!-- Прокручивающийся бренд сайта поверх рекламы -->
                 <div class="absolute top-2 left-0 right-0 overflow-hidden pointer-events-none z-20">
                     <div class="animate-brand-marquee whitespace-nowrap text-white/30 text-xs sm:text-sm font-black tracking-widest uppercase">
                         svetlickicki • svetlickicki • svetlickicki • svetlickicki • svetlickicki • svetlickicki
                     </div>
                 </div>
 
-                <!-- Кнопки управления слайдером -->
                 <button onclick="prevSlide()" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/80 transition z-20"><i class="fa-solid fa-chevron-left text-xs"></i></button>
                 <button onclick="nextSlide()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/80 transition z-20"><i class="fa-solid fa-chevron-right text-xs"></i></button>
             </section>
 
-            <!-- 4.2. Секция «Продажи» (Основной каталог товаров) -->
+            <!-- 4.2. Секция «Продажи» -->
             <section class="flex flex-col space-y-4">
                 <div class="flex items-center justify-between">
                     <h2 class="text-lg sm:text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-fire text-orange-500"></i> Каталог продаж</h2>
-                    <span class="text-xs text-gray-400">Все товары в наличии</span>
+                    <a href="catalog.html" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold transition flex items-center gap-1">Все товары <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
                 </div>
-
-                <!-- Сетка карточек в стиле Glassmorphism -->
-                <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <!-- Карточки генерируются скриптом для единообразного размера -->
-                </div>
+                <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"></div>
             </section>
 
-            <!-- 4.3. Лента новых продуктов (меньше в два раза, с красными скидками) -->
+            <!-- 4.3. Лента новых продуктов -->
             <section class="flex flex-col space-y-3 pt-4 border-t border-gray-800">
                 <div class="flex items-center justify-between">
                     <h2 class="text-base sm:text-lg font-bold flex items-center gap-2"><i class="fa-solid fa-sparkles text-pink-500"></i> Новые продукты со скидкой</h2>
                     <span class="text-xs text-gray-400">Успейте купить по акции</span>
                 </div>
-
-                <!-- Горизонтальная лента новых продуктов -->
-                <div id="newProductsFeed" class="flex space-x-4 overflow-x-auto no-scrollbar pb-2">
-                    <!-- Карточки генерируются скриптом -->
-                </div>
+                <div id="newProductsFeed" class="flex space-x-4 overflow-x-auto no-scrollbar pb-2"></div>
             </section>
 
         </main>
@@ -203,15 +205,12 @@
     <!-- 3. Нижняя черная шапка (Footer) -->
     <footer class="bg-black text-gray-400 py-8 px-6 mt-8 border-t border-gray-900">
         <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Подробности о сайте -->
             <div>
                 <h3 class="text-white text-base font-bold mb-2 flex items-center gap-2"><i class="fa-solid fa-bolt text-yellow-400"></i> svetlickicki</h3>
                 <p class="text-xs text-gray-400 leading-relaxed">
                     Ваш надежный интернет-магазин с большим выбором качественных товаров по доступным ценам. Быстрая доставка, удобная оплата и гарантированное качество каждого продукта.
                 </p>
             </div>
-
-            <!-- Контактные данные -->
             <div>
                 <h3 class="text-white text-base font-bold mb-2">Контакты</h3>
                 <ul class="space-y-1.5 text-xs">
@@ -220,17 +219,12 @@
                     <li class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-rose-400"></i> г. Киев, ул. Торговая, 15</li>
                 </ul>
             </div>
-
-            <!-- Ссылки на социальные сети -->
             <div>
                 <h3 class="text-white text-base font-bold mb-2">Мы в социальных сетях</h3>
-                <p class="text-xs text-gray-400 mb-3">Следите за акциями и новинками в наших соцсетях:</p>
                 <div class="flex space-x-3">
                     <a href="#" class="w-9 h-9 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-pink-600 hover:text-white transition text-sm"><i class="fa-brands fa-instagram"></i></a>
                     <a href="#" class="w-9 h-9 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-blue-500 hover:text-white transition text-sm"><i class="fa-brands fa-telegram"></i></a>
                     <a href="#" class="w-9 h-9 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition text-sm"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#" class="w-9 h-9 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white transition text-sm"><i class="fa-brands fa-youtube"></i></a>
-                    <a href="#" class="w-9 h-9 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-black hover:text-white transition text-sm"><i class="fa-brands fa-tiktok"></i></a>
                 </div>
             </div>
         </div>
@@ -239,9 +233,7 @@
         </div>
     </footer>
 
-    <!-- Скрипты для работы слайдера, корзины, языков и динамического рендеринга товаров -->
     <script>
-        // Данные товаров для основного каталога продаж
         const mainProducts = [
             { id: 1, name: "Беспроводные наушники Pro Max Ultra с активным шумоподавлением и мощным басом", price: 2499, img: "https://placehold.co/300x200/1e293b/ffffff?text=Headphones" },
             { id: 2, name: "Смарт-часы спортивные водонепроницаемые с фитнес-трекером и пульсометром", price: 1850, img: "https://placehold.co/300x200/1e293b/ffffff?text=Smart+Watch" },
@@ -253,7 +245,6 @@
             { id: 8, name: "Спортивная бутылка для воды из тритана со шкалой объема и фильтром", price: 450, img: "https://placehold.co/300x200/1e293b/ffffff?text=Bottle" }
         ];
 
-        // Данные новых продуктов (лента) со скидками
         const newProducts = [
             { id: 101, name: "Мини-штатив для смартфона гибкий", newPrice: 299, oldPrice: 499, img: "https://placehold.co/200x150/1e293b/ffffff?text=Tripod" },
             { id: 102, name: "Беспроводная мышь бесшумная эргономичная", newPrice: 399, oldPrice: 650, img: "https://placehold.co/200x150/1e293b/ffffff?text=Mouse" },
@@ -265,7 +256,6 @@
 
         let currentCartSum = 0;
 
-        // Рендеринг основного каталога
         function renderProducts() {
             const grid = document.getElementById('productGrid');
             grid.innerHTML = mainProducts.map(p => `
@@ -273,7 +263,6 @@
                     <div class="w-full h-32 rounded-lg overflow-hidden bg-zinc-800/50 mb-2 relative">
                         <img src="${p.img}" alt="${p.name}" class="w-full h-full object-cover">
                     </div>
-                    <!-- Название товара с автоматическим сокращением через line-clamp -->
                     <h3 class="text-xs font-medium text-gray-200 line-clamp-2" title="${p.name}">${p.name}</h3>
                     <div class="flex items-center justify-between mt-2 pt-2 border-t border-white/10">
                         <span class="text-xs sm:text-sm font-bold text-emerald-400">${p.price} грн</span>
@@ -285,7 +274,6 @@
             `).join('');
         }
 
-        // Рендеринг ленты новых продуктов
         function renderNewProducts() {
             const feed = document.getElementById('newProductsFeed');
             feed.innerHTML = newProducts.map(p => `
@@ -293,12 +281,9 @@
                     <div class="w-full h-20 rounded-lg overflow-hidden bg-zinc-800/50 mb-1.5">
                         <img src="${p.img}" alt="${p.name}" class="w-full h-full object-cover">
                     </div>
-                    <!-- Имя под ценами -->
                     <h4 class="text-[11px] font-medium text-gray-300 line-clamp-1" title="${p.name}">${p.name}</h4>
                     <div class="mt-1">
-                        <!-- Цена со скидкой красного цвета -->
                         <div class="text-xs font-extrabold text-red-500">${p.newPrice} грн</div>
-                        <!-- Старая перечеркнутая цена -->
                         <div class="text-[10px] text-gray-400 line-through">${p.oldPrice} грн</div>
                     </div>
                     <button onclick="addToCart(${p.newPrice})" class="mt-1 bg-red-600/80 hover:bg-red-600 text-white text-[10px] py-1 rounded transition font-medium text-center">
@@ -308,19 +293,17 @@
             `).join('');
         }
 
-        // Добавление в корзину с обновлением суммы покупок
         function addToCart(price) {
             currentCartSum += price;
             document.getElementById('totalSum').innerText = currentCartSum + ' грн';
         }
 
-        // Логика слайдера
         let currentSlide = 0;
         const totalSlides = 3;
         const slider = document.getElementById('slider');
 
         function updateSlider() {
-            slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+            if(slider) slider.style.transform = `translateX(-${currentSlide * 100}%)`;
         }
 
         function nextSlide() {
@@ -333,10 +316,8 @@
             updateSlider();
         }
 
-        // Автоматическое перелистывание слайдера
         setInterval(nextSlide, 5000);
 
-        // Переключение языка
         function changeLang(lang) {
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 if (btn.getAttribute('data-lang') === lang) {
@@ -347,14 +328,10 @@
             });
         }
 
-        // Уведомление вместо alert
         function openModal(action) {
-            const modalMsg = action === 'register' ? 'Открытие формы регистрации нового пользователя.' : 'Действие выполнено';
-            // Не используем alert, выводим стильное уведомление в консоль или плашку
-            console.log(modalMsg);
+            console.log('Action:', action);
         }
 
-        // Инициализация при загрузке
         window.onload = function() {
             renderProducts();
             renderNewProducts();
