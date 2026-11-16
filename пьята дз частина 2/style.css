@@ -1,0 +1,66 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 30px;
+}
+
+.todo-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #111;
+    margin-bottom: 15px;
+}
+
+.todo-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    font-size: 16px;
+    color: #222;
+}
+
+.item:nth-child(odd) {
+    background-color: #b3d1e6; 
+}
+
+.item:nth-child(even) {
+    background-color: #d6e6f2; 
+}
+
+.item.completed {
+    background-color: #e0e0e0 !important;
+}
+
+.item.completed .text {
+    text-decoration: line-through;
+    color: #555;
+}
+
+.checkbox {
+    margin-right: 15px;
+    font-size: 18px;
+}
+
+.text {
+    flex-grow: 1;
+}
+
+.close {
+    color: #d9534f;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 18px;
+    margin-left: 10px;
+}

@@ -1,0 +1,58 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    padding: 40px;
+}
+
+.todo-container {
+    width: 500px;
+}
+
+.todo-container h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #000000;
+}
+
+.todo-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.todo-list li {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    font-size: 16px;
+}
+
+.todo-list li input[type="checkbox"] {
+    margin-right: 15px;
+    width: 16px;
+    height: 16px;
+    accent-color: #4b5563;
+}
+
+.todo-list li span:nth-of-type(1) {
+    flex-grow: 1;
+}
+
+.todo-list li:nth-child(odd) {
+    background-color: #b5d3e7;
+}
+
+.todo-list li:nth-child(even) {
+    background-color: #e5e5e5;
+}
+
+.todo-list li.completed span:nth-of-type(1) {
+    text-decoration: line-through;
+    color: #000000;
+}
+
+.red-cross {
+    color: #dc2626;
+    font-size: 14px;
+    font-weight: bold;
+}

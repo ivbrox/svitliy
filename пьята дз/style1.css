@@ -1,0 +1,36 @@
+body {
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    padding: 40px;
+}
+
+.wrapper {
+    background-color: #d88998;
+    padding: 30px;
+    width: 600px;
+}
+
+.fruit-list {
+    background-color: #cf798a;
+    padding: 20px 40px;
+    margin: 0;
+    list-style-position: inside;
+}
+
+.fruit-list li {
+    background-color: #c06375;
+    color: #ffffff;
+    margin: 12px 0;
+    padding: 10px 16px;
+    font-size: 18px;
+}
+
+.fruit-list .highlight-item {
+    background-color: #c06375;
+}
+
+.fruit-list .dark-text {
+    background-color: #8c263c;
+    color: #ffffff;
+    padding: 6px 12px;
+}
